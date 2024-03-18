@@ -64,9 +64,34 @@ function App() {
     setSelectedArtwork(null);
   };
 
-  const handleSearch = (term) => {
-    setSearchTerm(term);
+  const handleSearch = async (term) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_URL}/search`, {
+        params: {
+          q: term
+        }
+      });
+      const searchData = response.data.data;
+      const artworkDetails = await Promise.all(searchData.map(async (artwork) => {
+        const artworkResponse = await axios.get(`${API_URL}/${artwork.id}`);
+        return {
+          ...artwork,
+          imageUrl: `https://www.artic.edu/iiif/2/${artworkResponse.data.data.image_id}/full/843,/0/default.jpg`
+        };
+      }));
+      setArtworks(artworkDetails);
+      setTotalPages(response.data.pagination.total_pages);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error searching artworks:", error);
+      setLoading(false);
+    }
   };
+  
+  
+  
+  
 
   const handleCategoryFilter = (category) => {
     setCategoryFilter(category);
