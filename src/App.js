@@ -12,7 +12,7 @@ const API_URL = "https://api.artic.edu/api/v1/artworks";
 function App() {
   const [artworks, setArtworks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(2);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
   // eslint-disable-next-line
