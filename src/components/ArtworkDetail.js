@@ -10,6 +10,9 @@ function Detail({ label, value }) {
 }
 
 function ArtworkDetail({ artwork, onBack }) {
+  // Default artwork image URL
+  const defaultImageURL = "https://www.shutterstock.com/image-vector/image-icon-260nw-211642900.jpg";
+
   return (
     <div className="flex flex-col items-center">
       <button
@@ -21,7 +24,7 @@ function ArtworkDetail({ artwork, onBack }) {
       </button>
       <div className="border border-gray-300 p-4 rounded" style={{ width: '450px' }}>
         <img
-          src={`https://www.artic.edu/iiif/2/${artwork.image_id}/full/843,/0/default.jpg`}
+          src={artwork.image_id ? `https://www.artic.edu/iiif/2/${artwork.image_id}/full/843,/0/default.jpg` : defaultImageURL}
           alt={artwork.title}
           className="w-full h-80 object-cover mb-4"
         />

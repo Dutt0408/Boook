@@ -46,8 +46,11 @@ function App() {
 
   useEffect(() => {
     const filtered = fetchedArtworks.filter((artwork) => {
-      const titleMatch = artwork.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const categoryMatch = categoryFilter === "" || artwork.category === categoryFilter;
+      const titleMatch = artwork.title
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const categoryMatch =
+        categoryFilter === "" || artwork.category === categoryFilter;
       return titleMatch && categoryMatch;
     });
     setArtworks(filtered);
@@ -65,34 +68,41 @@ function App() {
     setSelectedArtwork(null);
   };
 
-const handleSearch = async (term) => {
-  try {
-    setLoading(true);
-    const response = await axios.get(`${API_URL}/search`, {
-      params: {
-        q: term
-      }
-    });
-    const searchData = response.data.data;
-    const artworkDetails = await Promise.all(searchData.map(async (artwork) => {
-      const artworkResponse = await axios.get(`${API_URL}/${artwork.id}`);
-      return {
-        ...artwork,
-        imageUrl: `https://www.artic.edu/iiif/2/${artworkResponse.data.data.image_id}/full/843,/0/default.jpg`
-      };
-    }));
-    setArtworks(artworkDetails);
-    setTotalPages(response.data.pagination.total_pages);
-    setLoading(false);
-  } catch (error) {
-    console.error("Error searching artworks:", error);
-    setLoading(false);
-  }
-};
+  const handleSearch = async (term) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_URL}/search`, {
+        params: {
+          q: term,
+        },
+      });
+      const searchData = response.data.data;
 
-  
-  
-  
+      // Fetch artwork details and construct image URLs
+      const artworkDetails = await Promise.all(
+        searchData.map(async (artwork) => {
+          const artworkResponse = await axios.get(`${API_URL}/${artwork.id}`, {
+            params: {
+              fields: "id,title,image_id",
+            },
+          });
+          const imageData = artworkResponse.data.data;
+          const imageUrl = `https://www.artic.edu/iiif/2/${imageData.image_id}/full/843,/0/default.jpg`;
+
+          // Return artwork details with image URL
+          return {
+            ...artwork,
+            imageUrl: imageUrl,
+          };
+        })
+      );
+      setArtworks(artworkDetails);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error searching artworks:", error);
+      setLoading(false);
+    }
+  };
 
   const handleCategoryFilter = (category) => {
     setCategoryFilter(category);
@@ -100,18 +110,22 @@ const handleSearch = async (term) => {
 
   return (
     <div className="container mx-auto p-4">
-      
-<h1 className="text-3xl font-bold mb-4 text-gray-900" style={{ fontFamily: 'Brush Script MT, Brush Script Std, cursive', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)' }}>Artwork Gallery</h1>
-
-
-
+      <h1
+        className="text-3xl font-bold mb-4 text-gray-900"
+        style={{
+          fontFamily: "Brush Script MT, Brush Script Std, cursive",
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.3)",
+        }}
+      >
+        Artwork Gallery
+      </h1>
 
       {selectedArtwork ? (
         <ArtworkDetail artwork={selectedArtwork} onBack={handleBackToList} />
       ) : (
         <>
           <div className="flex justify-between mb-4">
-            <SearchBar  onSearch={handleSearch} />
+            <SearchBar onSearch={handleSearch} />
             <FilterDropdown
               categoryFilter={categoryFilter}
               onCategoryChange={handleCategoryFilter}
